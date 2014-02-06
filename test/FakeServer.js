@@ -19,7 +19,7 @@ FakeServer.prototype.start = function (cb) {
 
     this._socket.on('message', function (msg, rinfo) {
         //console.warn("Server got: '" + msg.toString() + "'");
-        msg.toString().split("\n").forEach(function (part) {
+        msg.toString().split("\n").filter(function(part) { return part !== ''; }).forEach(function (part) {
             that._packetsReceived.push(part);
         });
         that.checkMessages();
