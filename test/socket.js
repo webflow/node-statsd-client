@@ -1,7 +1,7 @@
 var test = require('tape');
-var dgram = require('dgram');
 var setTimeout = require('timers').setTimeout;
 
+var UDPServer = require('./lib/udp-server.js');
 var EphemeralSocket = require('../lib/EphemeralSocket.js');
 
 var PORT = 8125;
@@ -117,13 +117,3 @@ test('socket will close and timeout', function t(assert) {
         }
     });
 });
-
-function UDPServer(opts, onBound) {
-    opts = opts || {};
-    var port = opts.port || PORT;
-
-    var server = dgram.createSocket('udp4');
-    server.bind(port, onBound);
-
-    return server;
-}
