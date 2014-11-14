@@ -118,6 +118,22 @@ test('socket will close and timeout', function t(assert) {
     });
 });
 
+test('writing to a bad host does not blow up', function t(assert) {
+    var sock = new EphemeralSocket({
+        host: 'lol.example.com',
+        port: PORT,
+        socket_timeout: 0
+    });
+
+    sock.send('hello');
+
+    setTimeout(function () {
+        assert.equal(sock._socket, null);
+        assert.end();
+    }, 50);
+});
+
+
 function UDPServer(opts, onBound) {
     opts = opts || {};
     var port = opts.port || PORT;
