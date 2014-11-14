@@ -127,3 +127,32 @@ test('DNS resolver will give up', function t(assert) {
         assert.end();
     }
 })
+
+test('Calls dns.resolve on interval', function t(assert) {
+    var counter = 0;
+    var resolver = new DNSResolver(FAKE_HOST, {
+        timeToLive: 100,
+        dns: {
+            resolve: function (host, cb) {
+                process.nextTick(function () {
+                    counter++;
+                    cb(null, ['0.0.0.' + counter]);
+
+                    if (counter === 3) {
+                        close();
+                    }
+                });
+            }
+        }
+    });
+
+    resolver.lookupHost();
+
+    function close() {
+        var hostname = resolver.resolveHost('some-key');
+        assert.equal(hostname, '0.0.0.3');
+        
+        resolver.close();
+        assert.end();
+    }
+});
