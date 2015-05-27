@@ -247,6 +247,8 @@ test('can write to socket with DNS resolver', function t(assert) {
 });
 
 test('DNS resolver will send IP address', function t(assert) {
+    var called = false;
+
     var sock = new EphemeralSocket({
         host: 'localhost',
         port: PORT,
@@ -261,8 +263,7 @@ test('DNS resolver will send IP address', function t(assert) {
 
                     assert.ok(isIPv4(host));
 
-                    sock.close();
-                    assert.end();
+                    called = true;
                 };
                 socket.close = function () {};
                 socket.unref = function () {};
@@ -278,6 +279,13 @@ test('DNS resolver will send IP address', function t(assert) {
             sock.send('hello');
         }
     });
+
+    setTimeout(function onTimer() {
+        assert.equal(called, true);
+
+        sock.close();
+        assert.end();
+    }, 100);
 });
 
 test('writing to a bad host does not blow up on multiple writes crossing the queue boundary', function t(assert) {

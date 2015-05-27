@@ -364,7 +364,31 @@ test('client.immediateTiming() with Date', function t(assert) {
             messageSent = true;
         });
         server.once('message', function (msg) {
-            assert.equal(msg.toString(), 'bar.foo:0|ms');
+            assert.ok(
+                msg.toString() === 'bar.foo:0|ms' ||
+                msg.toString() === 'bar.foo:1|ms'
+            );
+            assert.equal(messageSent, true);
+
+            server.close();
+            client.close();
+            assert.end();
+        });
+    });
+});
+
+test('client.immediateTiming() without Date', function t(assert) {
+    var server = UDPServer({ port: PORT }, function onBound() {
+        var client = new StatsDClient({
+            prefix: 'bar'
+        });
+
+        var messageSent = false;
+        client.immediateTiming('foo', 5, function onCompleteSending() {
+            messageSent = true;
+        });
+        server.once('message', function (msg) {
+            assert.ok(msg.toString() === 'bar.foo:5|ms');
             assert.equal(messageSent, true);
 
             server.close();
@@ -373,6 +397,7 @@ test('client.immediateTiming() with Date', function t(assert) {
         });
     });
 })
+
 
 
 test('can write with DNS resolver', function t(assert) {
