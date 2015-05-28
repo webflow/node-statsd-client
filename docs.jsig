@@ -31,6 +31,11 @@ uber-statsd-client : ({
             retries?: Number,
             factor?: Number
         }
+    },
+    cardinalityCheck?: {
+        intervalTime?: Number,
+        statName?: String
+        maximumLength?: Number
     }
 }) => StatsDClient
 

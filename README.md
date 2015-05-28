@@ -74,6 +74,37 @@ The UDP socket implementation has an internal `highWaterMark`.
 When the `highWaterMark` is reached all packets are dropped
     and ignored.
 
+### `options.cardinalityCheck`
+
+```ocaml
+{
+    intervalTime?: Number,
+    statName?: String
+    maximumLength?: Number
+}
+```
+
+The statsd client comes with an optional sanity check. By default
+the cardinality checker is off.
+
+To turn the cardinality checker on you should configure it.
+
+When enabled it will capture all keys and store them in memory;
+on an interval (default 10s) it will publish a `gauge` to statsd
+measuring the current number of keys it has seen.
+
+This gives you insight into the number of unique stats you are
+writing and allows you determine whether it increase in an
+unexpected fashion.
+
+For memory safety you can configure a `maximumLength` field
+which will cap the memory consumption of the keys by only
+storing that many keys in memory.
+
+The `intervalTime` field defaults to `10000` milli seconds.
+The `statName` field defaults to `uber-statsd-client.total-cardinality`.
+The `maximumLength` field defaults to `Infinity`.
+
 ### `options.packetQueue`
 
 ```ocaml
