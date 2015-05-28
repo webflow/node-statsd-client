@@ -101,7 +101,7 @@ For memory safety you can configure a `maximumLength` field
 which will cap the memory consumption of the keys by only
 storing that many keys in memory.
 
-The `intervalTime` field defaults to `10000` milli seconds.
+The `intervalTime` field defaults to `10000` milliseconds.
 The `statName` field defaults to `uber-statsd-client.total-cardinality`.
 The `maximumLength` field defaults to `Infinity`.
 
