@@ -438,3 +438,55 @@ test('client.timing() with Date', function t(assert) {
         });
     });
 })
+
+test('write cardinalityCheck', function t(assert) {
+    var server = UDPServer({
+        port: PORT
+    }, function onBound() {
+        var client = new StatsDClient({
+            prefix: 'bar',
+            packetQueue: {
+                flush: 10
+            },
+            cardinalityCheck: {
+                intervalTime: 40
+            }
+        });
+
+        var messages = [];
+        server.on('message', function onMessage(msg) {
+            messages.push(String(msg));
+        });
+
+        client.immediateIncrement('foo');
+
+        setTimeout(function upBar() {
+            client.immediateIncrement('bar');
+        }, 60);
+
+        setTimeout(function upFoo() {
+            client.immediateIncrement('foo');
+        }, 100);
+
+        setTimeout(function upBar2() {
+            client.immediateIncrement('baz');
+        }, 140);
+
+        setTimeout(function done() {
+            assert.deepEqual(messages, [
+                'bar.foo:1|c',
+                'bar.uber-statsd-client.total-cardinality:1|g',
+                'bar.bar:1|c',
+                'bar.uber-statsd-client.total-cardinality:3|g',
+                'bar.foo:1|c',
+                'bar.uber-statsd-client.total-cardinality:3|g',
+                'bar.baz:1|c',
+                'bar.uber-statsd-client.total-cardinality:4|g'
+            ]);
+
+            client.close();
+            server.close();
+            assert.end();
+        }, 180);
+    });
+});
