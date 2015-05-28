@@ -427,7 +427,10 @@ test('client.timing() with Date', function t(assert) {
 
         client.timing('foo', new Date());
         server.once('message', function (msg) {
-            assert.equal(msg.toString(), 'bar.foo:0|ms\n');
+            assert.ok(
+                msg.toString() === 'bar.foo:0|ms\n' ||
+                msg.toString() === 'bar.foo:1|ms\n'
+            );
 
             server.close();
             client.close();
