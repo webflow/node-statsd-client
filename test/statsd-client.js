@@ -363,8 +363,10 @@ test('client.immediateTiming() with Date', function t(assert) {
         client.immediateTiming('foo', new Date(), function onCompleteSending() {
             messageSent = true;
         });
-        server.once('message', function (msg) {
-            assert.equal(msg.toString(), 'bar.foo:0|ms');
+        server.once('message', function onMessage(msg) {
+            var msgStr = msg.toString();
+            assert.ok(msgStr === 'bar.foo:0|ms' ||
+                msgStr === 'bar.foo:1|ms');
             assert.equal(messageSent, true);
 
             server.close();
@@ -402,7 +404,9 @@ test('client.timing() with Date', function t(assert) {
 
         client.timing('foo', new Date());
         server.once('message', function (msg) {
-            assert.equal(msg.toString(), 'bar.foo:0|ms\n');
+            var msgStr = msg.toString();
+            assert.ok(msgStr === 'bar.foo:0|ms\n' ||
+                msgStr === 'bar.foo:1|ms\n');
 
             server.close();
             client.close();
