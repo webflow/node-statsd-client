@@ -1,3 +1,5 @@
+'use strict';
+
 var test = require('tape');
 var setTimeout = require('timers').setTimeout;
 var isIPv4 = require('net').isIPv4;
@@ -250,12 +252,13 @@ test('DNS resolver will send IP address', function t(assert) {
     var sock = new EphemeralSocket({
         host: 'localhost',
         port: PORT,
-        packetQueue: { flush: 10 },
-
+        packetQueue: {
+            flush: 10
+        },
         dgram: {
-            createSocket: function () {
+            createSocket: function createSocket() {
                 var socket = {};
-                socket.send = function (buf, s, e, port, host) {
+                socket.send = function send(buf, s, e, port, host) {
                     var str = String(buf);
                     assert.equal(str, 'hello\n');
 
@@ -264,9 +267,9 @@ test('DNS resolver will send IP address', function t(assert) {
                     sock.close();
                     assert.end();
                 };
-                socket.close = function () {};
-                socket.unref = function () {};
-                socket.once = function () {};
+                socket.close = function close() {};
+                socket.unref = function unref() {};
+                socket.once = function once() {};
 
                 return socket;
             }
@@ -274,7 +277,7 @@ test('DNS resolver will send IP address', function t(assert) {
     });
 
     sock.resolveDNS({
-        onresolved: function () {
+        onresolved: function onresolved() {
             sock.send('hello');
         }
     });
