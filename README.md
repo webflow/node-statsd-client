@@ -149,6 +149,11 @@ The `backoffSettings.factor` field defaults to `2`.
 When this predicate function returns `true` the `EphemeralSocket`
     will stop writing to the statsd UDP server.
 
+### `options.unsafeIPOnly`
+
+If you set `unsafeIPOnly` then we A) assume the `host` is an IP
+and B) we use a fork of node dgram for performance.
+
 ### Counting stuff
 
 Counters are supported, both as raw `.counter(metric, delta)` and with the

@@ -46,6 +46,29 @@ test('can write to socket', function t(assert) {
     });
 });
 
+test('can unsafe write to socket', function t(assert) {
+    var server = UDPServer({ port: PORT }, function onBound() {
+        var sock = new EphemeralSocket({
+            host: '127.0.0.1',
+            port: PORT,
+            unsafeIPOnly: true,
+            packetQueue: { flush: 10 }
+        });
+
+        server.once('message', onMessage);
+        sock.send('hello');
+
+        function onMessage(msg) {
+            var str = String(msg);
+            assert.equal(str, 'hello\n');
+
+            sock.close();
+            server.close();
+            assert.end();
+        }
+    });
+});
+
 test('respects isDisabled', function t(assert) {
     var isDisabledBool = false;
     var server = UDPServer({ port: PORT }, function onBound() {
@@ -154,6 +177,40 @@ test('can send multiple packets', function t(assert) {
     var server = UDPServer({ port: PORT }, function onBound() {
         var sock = new EphemeralSocket({
             host: 'localhost',
+            port: PORT,
+            packetQueue: { flush: 10, block: 5 }
+        });
+        var messages = [];
+
+        server.on('message', onMessage);
+        sock.send('hello');
+        sock.send(' ');
+        sock.send('world');
+
+        function onMessage(msg) {
+            messages.push(msg);
+
+            if (messages.join('').length === 14) {
+                onEnd();
+            }
+        }
+
+        function onEnd() {
+            assert.equal(messages.sort().join(''),
+                ' \nhello\nworld\n');
+
+            sock.close();
+            server.close();
+            assert.end();
+        }
+    });
+});
+
+test('can send multiple unsafe packets', function t(assert) {
+    var server = UDPServer({ port: PORT }, function onBound() {
+        var sock = new EphemeralSocket({
+            host: '127.0.0.1',
+            unsafeIPOnly: true,
             port: PORT,
             packetQueue: { flush: 10, block: 5 }
         });
