@@ -80,11 +80,9 @@ test('PacketQueue#write flush', function(assert) {
         pq.destroy()
     }, 15)
 
-    function send(data, offset, len) {
+    function send(data) {
         w++
         assert.deepEquals(data.toString(), '123\n456\n')
-        assert.equals(offset, 0)
-        assert.equals(len, data.length)
     }
 })
 
@@ -96,10 +94,8 @@ test('PacketQueue#write overflow', function(assert) {
     pq.write('456')
     pq.write('789')
 
-    function send(data, offset, len) {
+    function send(data) {
         assert.deepEquals(data.toString(), '123\n456\n')
-        assert.equals(offset, 0)
-        assert.equals(len, '123456\n'.length + 1)
 
         process.nextTick(function() {
             assert.deepEquals(pq._queue, ['789'])
