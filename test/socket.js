@@ -3,9 +3,10 @@
 var test = require('tape');
 var setTimeout = require('timers').setTimeout;
 var isIPv4 = require('net').isIPv4;
+var process = require('process');
 
 var UDPServer = require('./lib/udp-server.js');
-var EphemeralSocket = require('../lib/EphemeralSocket.js'); 
+var EphemeralSocket = require('../lib/EphemeralSocket.js');
 
 var PORT = 8125;
 
@@ -219,7 +220,7 @@ test('writing to a bad host does not blow up', function t(assert) {
 
     sock.send('hello');
 
-    setTimeout(function () {
+    setTimeout(function onTimer() {
         assert.equal(sock._socket, null);
         assert.end();
     }, 50);
@@ -249,6 +250,7 @@ test('can write to socket with DNS resolver', function t(assert) {
 });
 
 test('DNS resolver will send IP address', function t(assert) {
+    var called = false;
     var sock = new EphemeralSocket({
         host: 'localhost',
         port: PORT,
@@ -263,9 +265,7 @@ test('DNS resolver will send IP address', function t(assert) {
                     assert.equal(str, 'hello\n');
 
                     assert.ok(isIPv4(host));
-
-                    sock.close();
-                    assert.end();
+                    called = true;
                 };
                 socket.close = function close() {};
                 socket.unref = function unref() {};
@@ -281,6 +281,13 @@ test('DNS resolver will send IP address', function t(assert) {
             sock.send('hello');
         }
     });
+
+    setTimeout(function fini() {
+        assert.ok(called);
+
+        sock.close();
+        assert.end();
+    }, 50);
 });
 
 test('writing to a bad host does not blow up on multiple writes crossing the queue boundary', function t(assert) {
