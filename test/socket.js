@@ -295,7 +295,10 @@ test('writing to a bad host does not blow up on multiple writes crossing the que
         host: 'lol.example.com',
         port: PORT,
         socket_timeout: 0,
-        packetQueue: { block: 1, flush: 1 }
+        packetQueue: {
+            block: 1,
+            flush: 1
+        }
     });
 
     sock.send('hello');
@@ -304,14 +307,24 @@ test('writing to a bad host does not blow up on multiple writes crossing the que
     var uncaughtExceptionCount = 0;
     process.on('uncaughtException', onUncaughtException);
 
-    setTimeout(function () {
+    setTimeout(function onTime() {
+        if (sock._socket) {
+            setTimeout(onTime, 1500);
+        } else {
+            assertState();
+        }
+    }, 100);
+
+    function assertState() {
         assert.equal(sock._socket, null);
         assert.equal(uncaughtExceptionCount, 0);
+
         process.removeListener('uncaughtException', onUncaughtException);
         assert.end();
-    }, 50);
+    }
 
     function onUncaughtException(err) {
+        assert.ifError(err);
         uncaughtExceptionCount++;
     }
 });
